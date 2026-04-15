@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Brainf**k 语言介绍</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #1d1d1f;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        .hero {
+            text-align: center;
+            margin: 2rem 0 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: -0.005em;
+            background: linear-gradient(135deg, #1d1d1f, #6e6e73);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero .subhead {
+            font-size: 1.25rem;
+            color: #6e6e73;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin: 3rem 0;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: -0.002em;
+            margin-bottom: 1.25rem;
+            color: #1d1d1f;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin: 1.5rem 0 0.75rem;
+            color: #1d1d1f;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #3a3a3e;
+            margin-bottom: 1rem;
+        }
+
+        .ins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .ins-card {
+            background: #f5f5f7;
+            border-radius: 1.2rem;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .ins-sym {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #0066cc;
+            margin-bottom: 0.25rem;
+        }
+
+        .ins-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+
+        .ins-desc {
+            font-size: 0.75rem;
+            color: #6e6e73;
+            margin-top: 0.25rem;
+        }
+
+        pre {
+            background: #1e1e2f;
+            padding: 1.25rem;
+            border-radius: 1.2rem;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            color: #eef2ff;
+            font-family: 'SF Mono', 'JetBrains Mono', monospace;
+            margin: 1rem 0;
+            border: 1px solid #2c2c3a;
+        }
+
+        code {
+            font-family: 'SF Mono', monospace;
+            background: #e8e8ed;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            color: #1d1d1f;
+        }
+
+        .example-output {
+            background: #f5f5f7;
+            border-radius: 1rem;
+            padding: 0.8rem;
+            margin: 0.5rem 0 1rem;
+            color: #1d1d1f;
+            font-family: monospace;
+            font-size: 0.85rem;
+            border: 1px solid #e8e8ed;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #0066cc;
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border-radius: 980px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #0066cc;
+            color: #0066cc;
+        }
+
+        .btn:hover {
+            background: #0077ed;
+            transform: scale(1.02);
+        }
+
+        .btn-outline:hover {
+            background: #0066cc10;
+            transform: scale(1.02);
+        }
+
+        .bottom-wrapper {
+            width: 980px;
+            max-width: calc(100% - 2rem);
+            margin: 0 auto;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #d2d2d7;
+            margin: 2rem 0 1.5rem;
+        }
+
+        .apple-footer {
+            background-color: #f5f5f7;
+            padding: 2rem 0 2rem;
+            font-size: 0.75rem;
+            color: #6e6e73;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-links-column {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            min-width: 120px;
+        }
+
+        .footer-links-column a {
+            color: #424245;
+            text-decoration: none;
+            font-size: 0.75rem;
+        }
+
+        .footer-links-column a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-copyright {
+            border-top: 1px solid #d2d2d7;
+            padding-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            color: #8e8e93;
+        }
+
+        .footer-legal {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-legal a {
+            color: #424245;
+            text-decoration: none;
+        }
+
+        .footer-legal a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 700px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .hero .subhead {
+                font-size: 1rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+            .container {
+                padding: 1.5rem;
+            }
+            .ins-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .footer-copyright {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="hero">
+        <h1>🧠 Brainf**k</h1>
+        <div class="subhead">极简主义 · 图灵完备 · 八条指令的深奥语言</div>
+    </div>
+
+    <section>
+        <p>Brainf**k 是 Urban Müller 于 1993 年创造的极小化编程语言。它仅由八个指令组成，却具备完整的图灵完备性——可以模拟任何计算机算法。其设计哲学是“极简”，每个指令只有一个字符，使得解释器可以非常短小，但也因此代码可读性极低，常被用作编程挑战或 esolang 研究的经典案例。</p>
+    </section>
+
+    <section>
+        <h2>历史与设计</h2>
+        <p>Müller 最初设计 Brainf**k 的目标是构建一个最小的图灵完备语言，编译器可以小到 200 字节以下。名字来源于其代码的晦涩程度。后来涌现出大量优化器、解释器、甚至硬件实现。它直接启发了无数“极简语言”的设计，是 esoteric programming 社区的基石之一。</p>
+    </section>
+
+    <section>
+        <h2>内存模型</h2>
+        <p>Brainf**k 程序拥有一段线性内存，通常 30,000 个字节，每个字节初始为 0，以及一个数据指针指向当前内存单元。另外有一个指令指针和输入输出流。所有操作均围绕指针和当前单元进行，数值溢出通常定义为模 256。</p>
+    </section>
+
+    <section>
+        <h2>八条指令速查</h2>
+        <div class="ins-grid">
+            <div class="ins-card"><div class="ins-sym">&gt;</div><div class="ins-name">指针右移</div><div class="ins-desc">将数据指针指向下一个单元格</div></div>
+            <div class="ins-card"><div class="ins-sym">&lt;</div><div class="ins-name">指针左移</div><div class="ins-desc">将数据指针指向上一个单元格</div></div>
+            <div class="ins-card"><div class="ins-sym">+</div><div class="ins-name">当前格加1</div><div class="ins-desc">当前单元格数值增加1</div></div>
+            <div class="ins-card"><div class="ins-sym">-</div><div class="ins-name">当前格减1</div><div class="ins-desc">当前单元格数值减少1</div></div>
+            <div class="ins-card"><div class="ins-sym">.</div><div class="ins-name">输出字符</div><div class="ins-desc">将当前单元格数值作为ASCII字符输出</div></div>
+            <div class="ins-card"><div class="ins-sym">,</div><div class="ins-name">读取输入</div><div class="ins-desc">从标准输入读取一个字节存入当前单元格</div></div>
+            <div class="ins-card"><div class="ins-sym">[</div><div class="ins-name">循环开始</div><div class="ins-desc">若当前格为0，则跳转到匹配的 ] 之后</div></div>
+            <div class="ins-card"><div class="ins-sym">]</div><div class="ins-name">循环结束</div><div class="ins-desc">若当前格非0，则跳转回匹配的 [ 之后</div></div>
+        </div>
+    </section>
+
+    <section>
+        <h2>示例代码</h2>
+        
+        <h3>输出 “HI!” 的示例</h3>
+        <pre>+++++ +++++    将cell0设为10
+[              开始循环
+-              cell0减1
+> +++++ ++     cell1加7
+> +++ <<       cell2加3
+]              结束循环，此时cell0 = 0，cell1 = 70，cell2 = 30
+> ++ .         cell1加2，等于72，输出ASCII "H"
++ .            cell1加1，等于73，输出ASCII "I"
+> +++ .        cell2加3，等于33，输出ASCII "！"</pre>
+        <div class="example-output">输出：HI!</div>
+
+        <h3>四则运算示例</h3>
+        <p>以下示例展示如何使用 Brainf**k 进行基本的算术运算。所有运算结果存储在指定内存单元中，并输出结果字符。</p>
+
+        <h3>加法</h3>
+        <p>将 cell0 的值加到 cell1，结果存入 cell1，同时清空 cell0。</p>
+        <pre>将 cell0 设为 5，cell1 设为 3
++++++          cell0 = 5
+> +++          cell1 = 3
+<             回到 cell0
+[->+<]        将 cell0 的值转移到 cell1（cell1 += cell0，cell0 清零）
+>>            移动到 cell1
+.             输出结果（ASCII 8，即退格符，此处仅作示例）</pre>
+        <div class="example-output">加法结果：8（非可打印字符，逻辑值为8）</div>
+
+        <h3>减法</h3>
+        <p>将 cell0 减去 cell1，结果存入 cell2。</p>
+        <pre>将 cell0 设为 8，cell1 设为 3
+++++++++       cell0 = 8
+> +++          cell1 = 3
+<[->-<]        cell0 减去 cell1，结果存到 cell2
+>>            移动到 cell2
+.             输出结果（ASCII 5）</pre>
+        <div class="example-output">减法结果：5</div>
+
+        <h3>乘法</h3>
+        <p>将 cell0 乘以 cell1，结果存入 cell2。使用嵌套循环。</p>
+        <pre>将 cell0 设为 4，cell1 设为 3
+++++           cell0 = 4
+> +++          cell1 = 3
+<[            外层循环：遍历 cell0
+    [->+<]    将 cell1 的值加到 cell2，并恢复 cell1
+    >+<       为下一轮准备
+    -          cell0 减 1
+] 
+>>            移动到 cell2
+.             输出结果（ASCII 12，即换页符）</pre>
+        <div class="example-output">乘法结果：12</div>
+
+        <h3>除法</h3>
+        <p>将 cell0 除以 cell1，商存入 cell2，余数存入 cell3。此示例仅展示整数除法逻辑。</p>
+        <pre>将 cell0 设为 10，cell1 设为 3
+++++++++++     cell0 = 10
+> +++          cell1 = 3
+<[            循环：当 cell0 >= cell1 时
+    [->+<]    将 cell1 复制到临时区
+    >[-]<     清除
+    >>+<<     商加1
+    -[>+<-]   从 cell0 减去 cell1
+    >[-]<     清除临时
+    >+<       调整指针
+]
+>>            移动到商
+.             输出商（ASCII 3）</pre>
+        <div class="example-output">除法结果：商为 3，余数为 1</div>
+
+        <h3>无限循环与输入复制</h3>
+        <pre>,[.,]</pre>
+        <p>读取一个字符并输出，重复直到输入结束。这是最简单的回显程序。</p>
+    </section>
+
+    <section>
+        <h2>学习资源与技巧</h2>
+        <p>虽然指令很少，但编写复杂的 Brainf**k 程序需要巧妙利用循环和指针偏移。常用技巧包括：<br>
+        - <strong>清零当前格</strong>：<code>[-]</code><br>
+        - <strong>复制单元格值</strong>：需要借助临时单元，例如 <code>[->+&lt;]</code><br>
+        - <strong>条件判断</strong>：利用嵌套循环或指针偏移模拟 if 结构。<br>
+        网上有许多 Brainf**k 优化器和从高级语言编译到 Brainf**k 的编译器，适合进阶研究。</p>
+    </section>
+
+    <section>
+        <h2>为什么学习 Brainf**k？</h2>
+        <p>尽管 Brainf**k 不用于实际开发，但它对理解计算理论、有限状态机、指针操作和编译原理非常有帮助。在挑战中编写 Brainf**k 程序能极大锻炼逻辑思维与耐心，也是 esolang 社区的经典入门语言。</p>
+    </section>
+
+    <div class="button-group">
+        <a href="index.html" class="btn">打开在线工坊</a>
+        <a href="https://esolangs.org/wiki/Brainfuck" target="_blank" class="btn btn-outline">Esolang 维基</a>
+    </div>
+</div>
+
+<div class="bottom-wrapper">
+    <hr>
+    <div class="apple-footer">
+        <div class="footer-links">
+            <div class="footer-links-column">
+                <a href="#">关于 Brainf**k</a>
+                <a href="index.html">学习工坊</a>
+                <a href="#">隐私政策</a>
+            </div>
+            <div class="footer-links-column">
+                <a href="https://github.com/Jason-Huo-11">GitHub</a>
+                <a href="https://esolangs.org/wiki/Brainfuck">Esolang 维基</a>
+                <a href="#">使用条款</a>
+            </div>
+            <div class="footer-links-column">
+                <a href="#">联系我们</a>
+                <a href="#">网站地图</a>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div>Copyright © 2026 Jason Huo 保留所有权利。</div>
+            <div class="footer-legal">
+                <a href="#">隐私政策</a>
+                <a href="#">使用条款</a>
+                <a href="#">销售政策</a>
+                <a href="#">法律信息</a>
+                <a href="#">网站地图</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
