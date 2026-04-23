@@ -11,11 +11,73 @@
             box-sizing: border-box;
         }
 
+        /* 浅色主题 */
+        :root {
+            --bg-body: #f5f5f7;
+            --text-primary: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --card-bg: #ffffff;
+            --card-border: #e8e8ed;
+            --btn-bg: #0066cc;
+            --btn-hover-bg: #0077ed;
+            --btn-outline-border: #0066cc;
+            --btn-outline-text: #0066cc;
+            --code-bg: #1e1e2f;
+            --code-text: #eef2ff;
+            --example-bg: #f5f5f7;
+            --link-color: #0066cc;
+            --ins-card-bg: #ffffff;
+        }
+
+        /* 深色主题 */
+        body.dark {
+            --bg-body: #1c1c1e;
+            --text-primary: #ffffff;
+            --text-secondary: #98989e;
+            --card-bg: #2c2c2e;
+            --card-border: #38383a;
+            --btn-bg: #0a84ff;
+            --btn-hover-bg: #409cff;
+            --btn-outline-border: #0a84ff;
+            --btn-outline-text: #0a84ff;
+            --code-bg: #0e0e10;
+            --code-text: #eef2ff;
+            --example-bg: #1c1c1e;
+            --link-color: #0a84ff;
+            --ins-card-bg: #2c2c2e;
+        }
+
         body {
-            background-color: #f5f5f7;
+            background-color: var(--bg-body);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: #1d1d1f;
+            color: var(--text-primary);
             line-height: 1.5;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        /* 主题切换按钮 */
+        .theme-toggle {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: background 0.2s;
+            z-index: 1000;
+            color: var(--text-primary);
+        }
+        .theme-toggle:hover {
+            background: var(--btn-outline-border)20;
         }
 
         .container {
@@ -33,7 +95,7 @@
             font-size: 3.5rem;
             font-weight: 700;
             letter-spacing: -0.005em;
-            background: linear-gradient(135deg, #1d1d1f, #6e6e73);
+            background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -42,7 +104,7 @@
 
         .hero .subhead {
             font-size: 1.25rem;
-            color: #6e6e73;
+            color: var(--text-secondary);
             max-width: 600px;
             margin: 0 auto;
         }
@@ -56,19 +118,19 @@
             font-weight: 600;
             letter-spacing: -0.002em;
             margin-bottom: 1.25rem;
-            color: #1d1d1f;
+            color: var(--text-primary);
         }
 
         h3 {
             font-size: 1.3rem;
             font-weight: 500;
             margin: 1.5rem 0 0.75rem;
-            color: #1d1d1f;
+            color: var(--text-primary);
         }
 
         p {
             font-size: 1rem;
-            color: #3a3a3e;
+            color: var(--text-secondary);
             margin-bottom: 1rem;
         }
 
@@ -80,68 +142,68 @@
         }
 
         .ins-card {
-            background: #ffffff;
+            background: var(--ins-card-bg);
             border-radius: 1.2rem;
             padding: 1rem;
             text-align: center;
             transition: all 0.2s ease;
-            border: 1px solid #e8e8ed;
+            border: 1px solid var(--card-border);
         }
 
         .ins-sym {
             font-size: 2rem;
             font-weight: 600;
-            color: #0066cc;
+            color: var(--link-color);
             margin-bottom: 0.25rem;
         }
 
         .ins-name {
             font-size: 0.85rem;
             font-weight: 500;
-            color: #1d1d1f;
+            color: var(--text-primary);
         }
 
         .ins-desc {
             font-size: 0.75rem;
-            color: #6e6e73;
+            color: var(--text-secondary);
             margin-top: 0.25rem;
         }
 
         pre {
-            background: #1e1e2f;
+            background: var(--code-bg);
             padding: 1.25rem;
             border-radius: 1.2rem;
             overflow-x: auto;
             font-size: 0.85rem;
-            color: #eef2ff;
+            color: var(--code-text);
             font-family: 'SF Mono', 'JetBrains Mono', monospace;
             margin: 1rem 0;
-            border: 1px solid #2c2c3a;
+            border: 1px solid var(--card-border);
         }
 
         code {
             font-family: 'SF Mono', monospace;
-            background: #e8e8ed;
+            background: var(--card-border);
             padding: 0.2rem 0.4rem;
             border-radius: 0.5rem;
             font-size: 0.85rem;
-            color: #1d1d1f;
+            color: var(--text-primary);
         }
 
         .example-output {
-            background: #f5f5f7;
+            background: var(--example-bg);
             border-radius: 1rem;
             padding: 0.8rem;
             margin: 0.5rem 0 1rem;
-            color: #1d1d1f;
+            color: var(--text-primary);
             font-family: monospace;
             font-size: 0.85rem;
-            border: 1px solid #e8e8ed;
+            border: 1px solid var(--card-border);
         }
 
         .handmade-note {
             font-size: 0.7rem;
-            color: #8e8e93;
+            color: var(--text-secondary);
             margin-top: 0.5rem;
             text-align: left;
             font-style: italic;
@@ -157,7 +219,7 @@
 
         .btn {
             display: inline-block;
-            background: #0066cc;
+            background: var(--btn-bg);
             color: white;
             padding: 0.6rem 1.5rem;
             border-radius: 980px;
@@ -168,7 +230,7 @@
         }
 
         .btn:hover {
-            background: #0077ed;
+            background: var(--btn-hover-bg);
             transform: scale(1.02);
         }
 
@@ -180,7 +242,7 @@
 
         hr {
             border: none;
-            border-top: 1px solid #d2d2d7;
+            border-top: 1px solid var(--card-border);
             margin: 2rem 0 1.5rem;
         }
 
@@ -191,7 +253,7 @@
             flex-wrap: wrap;
             gap: 1rem;
             font-size: 0.75rem;
-            color: #6e6e73;
+            color: var(--text-secondary);
             padding: 1rem 0 2rem;
         }
 
@@ -202,7 +264,7 @@
         }
 
         .footer-link {
-            color: #0066cc;
+            color: var(--link-color);
             text-decoration: none;
         }
 
@@ -230,10 +292,18 @@
                 flex-direction: column;
                 text-align: center;
             }
+            .theme-toggle {
+                left: 10px;
+                width: 36px;
+                height: 36px;
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
 <body>
+<button class="theme-toggle" id="themeToggle" aria-label="切换深浅色主题">🌙</button>
+
 <div class="container">
     <div class="hero">
         <h1>🧠 BF</h1>
@@ -370,5 +440,22 @@
     </div>
 </div>
 
+<script>
+    // 主题切换逻辑
+    const themeToggle = document.getElementById('themeToggle');
+    const currentTheme = localStorage.getItem('theme');
+    if (currentTheme === 'dark') {
+        document.body.classList.add('dark');
+        themeToggle.textContent = '☀️';
+    } else {
+        themeToggle.textContent = '🌙';
+    }
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        themeToggle.textContent = isDark ? '☀️' : '🌙';
+    });
+</script>
 </body>
 </html>
