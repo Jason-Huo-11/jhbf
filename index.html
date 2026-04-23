@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>BF IDE</title>
+    <link rel="icon" href="bf.ico">
     <style>
         * {
             margin: 0;
@@ -618,43 +619,7 @@
 </div>
 
 <script>
-    // 主题切换逻辑
-    const themeToggle = document.getElementById('themeToggle');
-    const currentTheme = localStorage.getItem('theme');
-    if (currentTheme === 'dark') {
-        document.body.classList.add('dark');
-        themeToggle.textContent = '☀️';
-    } else {
-        themeToggle.textContent = '🌙';
-    }
-    themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark');
-        const isDark = document.body.classList.contains('dark');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        themeToggle.textContent = isDark ? '☀️' : '🌙';
-    });
-
-    // 以下为原有 IDE 功能代码，并修改文件选择部分
-    const MEM_SIZE = 30000;
-    let memory = new Uint8Array(MEM_SIZE);
-    let pointer = 0;
-    let outputBuffer = "";
-    
-    const bfCodeTextarea = document.getElementById('bfCode');
-    const runBtn = document.getElementById('runBtn');
-    const clearOutputBtn = document.getElementById('clearOutputBtn');
-    const exampleBtn = document.getElementById('exampleBtn');
-    const saveFileBtn = document.getElementById('saveFileBtn');
-    const openFileBtn = document.getElementById('openFileBtn');
-    const openWorkspaceBtn = document.getElementById('openWorkspaceBtn');
-    const workspaceFileSelect = document.getElementById('workspaceFileSelect');
-    const outputArea = document.getElementById('outputArea');
-    const memoryGridDiv = document.getElementById('memoryGrid');
-    const ptrIndicator = document.getElementById('ptrIndicator');
-    const currentCellValSpan = document.getElementById('currentCellVal');
-    
-    let currentWorkspaceFiles = []; // 存储 File 对象列表
-    
+    // ---------- Cookie 操作辅助函数 ----------
     function setCookie(name, value, days) {
         let expires = "";
         if (days) {
@@ -676,16 +641,64 @@
         return null;
     }
     
-    function saveEditorToCookie() {
-        setCookie('bf_editor_content', bfCodeTextarea.value, 365);
+    // ---------- 主题切换（使用 Cookie，有效期约100年） ----------
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = getCookie('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark');
+        themeToggle.textContent = '☀️';
+    } else {
+        themeToggle.textContent = '🌙';
     }
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        setCookie('theme', isDark ? 'dark' : 'light', 36500);  // 无限有效期 ≈ 100年
+        themeToggle.textContent = isDark ? '☀️' : '🌙';
+    });
     
+    // ---------- 编辑器内容（使用 Cookie，无限有效期） ----------
+    const bfCodeTextarea = document.getElementById('bfCode');
+    function saveEditorToCookie() {
+        setCookie('bf_editor_content', bfCodeTextarea.value, 36500);
+    }
     function loadEditorFromCookie() {
         const saved = getCookie('bf_editor_content');
         if (saved !== null) bfCodeTextarea.value = saved;
     }
-    
     bfCodeTextarea.addEventListener('input', saveEditorToCookie);
+    
+    // ---------- 其他 IDE 功能 ----------
+    const MEM_SIZE = 30000;
+    let memory = new Uint8Array(MEM_SIZE);
+    let pointer = 0;
+    let outputBuffer = "";
+    
+    const runBtn = document.getElementById('runBtn');
+    const clearOutputBtn = document.getElementById('clearOutputBtn');
+    const exampleBtn = document.getElementById('exampleBtn');
+    const saveFileBtn = document.getElementById('saveFileBtn');
+    const openFileBtn = document.getElementById('openFileBtn');
+    const openWorkspaceBtn = document.getElementById('openWorkspaceBtn');
+    const workspaceFileSelect = document.getElementById('workspaceFileSelect');
+    const outputArea = document.getElementById('outputArea');
+    const memoryGridDiv = document.getElementById('memoryGrid');
+    const ptrIndicator = document.getElementById('ptrIndicator');
+    const currentCellValSpan = document.getElementById('currentCellVal');
+    
+    let currentWorkspaceFiles = []; // 存储 File 对象列表
+    
+    // 保存/下载文件（使用 localStorage 保存计数器，不影响全局 Cookie 统一性）
+    function getNextFileIndex() {
+        let nextIndex = localStorage.getItem('bf_file_counter');
+        if (nextIndex === null) {
+            nextIndex = 0;
+        } else {
+            nextIndex = parseInt(nextIndex, 10);
+        }
+        localStorage.setItem('bf_file_counter', nextIndex + 1);
+        return nextIndex;
+    }
     
     function saveCodeToFile() {
         const code = bfCodeTextarea.value;
@@ -730,7 +743,6 @@
         input.click();
     }
     
-    // 选择工作区文件夹：扫描所有 .bf/.txt 文件并存储，同时填充下拉框
     function selectWorkspaceFolder() {
         const input = document.createElement('input');
         input.type = 'file';
@@ -748,7 +760,6 @@
                 return;
             }
             currentWorkspaceFiles = bfFiles;
-            // 填充下拉框
             workspaceFileSelect.disabled = false;
             let options = '<option value="">选择工作区文件</option>';
             bfFiles.forEach((file, idx) => {
@@ -762,7 +773,6 @@
         input.click();
     }
     
-    // 加载选中的工作区文件
     function loadWorkspaceFile() {
         const idx = workspaceFileSelect.value;
         if (idx === "" || idx === null) return;
@@ -778,7 +788,6 @@
             };
             reader.readAsText(file, "UTF-8");
         }
-        // 重置下拉框选择回默认提示
         workspaceFileSelect.value = "";
     }
     
