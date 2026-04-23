@@ -31,6 +31,7 @@
             --ascii-item-bg: #ffffff;
             --mem-cell-bg: #f5f5f7;
             --ptr-badge-bg: #e8e8ed;
+            --select-bg: #ffffff;
         }
 
         /* 深色主题 */
@@ -53,6 +54,7 @@
             --ascii-item-bg: #2c2c2e;
             --mem-cell-bg: #2c2c2e;
             --ptr-badge-bg: #3a3a3c;
+            --select-bg: #2c2c2e;
         }
 
         body {
@@ -337,10 +339,43 @@
             transform: scale(1.02);
         }
 
-        .btn-square {
+        .btn-square, .file-select {
             border-radius: 8px;
+            background: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            padding: 0 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 34px;
+            box-sizing: border-box;
+        }
+
+        .btn-square:hover, .file-select:hover {
             background: var(--btn-hover-bg);
-            border-color: var(--btn-border);
+        }
+
+        .file-select {
+            min-width: 140px;
+            background-color: var(--btn-bg);
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .file-select:focus {
+            border-color: var(--link-color);
+            outline: none;
+        }
+
+        .file-select option {
+            background: var(--select-bg);
+            color: var(--text-primary);
         }
 
         .console {
@@ -385,7 +420,9 @@
         .editor-extra-buttons {
             display: flex;
             gap: 12px;
-            margin: 12px 0 7px;  /* 修改下边距为 7px */
+            margin: 12px 0 7px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .resize-hint {
@@ -395,37 +432,6 @@
             margin-top: 4px;
             user-select: none;
             pointer-events: none;
-        }
-
-        .file-select {
-            position: fixed;
-            z-index: 1000;
-            background: var(--card-bg);
-            border: 1px solid var(--btn-border);
-            border-radius: 1rem;
-            padding: 0.75rem;
-            min-width: 220px;
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
-        }
-        .file-select select {
-            background: var(--card-bg);
-            color: var(--text-primary);
-            border: 1px solid var(--btn-border);
-            border-radius: 8px;
-            padding: 0.4rem;
-            width: 100%;
-            font-family: inherit;
-        }
-        .file-select button {
-            margin-top: 0.75rem;
-            width: 100%;
-            background: var(--link-color);
-            border: none;
-            padding: 0.4rem;
-            border-radius: 980px;
-            color: white;
-            cursor: pointer;
-            font-weight: 500;
         }
 
         .bottom-wrapper {
@@ -504,6 +510,9 @@
                 height: 36px;
                 font-size: 1.2rem;
             }
+            .file-select {
+                min-width: 120px;
+            }
         }
 
         @media (max-width: 550px) {
@@ -568,8 +577,10 @@
                 </div>
                 <div class="editor-hint">不支持注释，任何BF指令都将被识别！</div>
                 <div class="editor-extra-buttons">
-                    <button id="openWorkspaceBtn" class="btn btn-square">打开工作区文件夹</button>
-                    <button id="selectFileBtn" class="btn btn-square">选择文件</button>
+                    <button id="openWorkspaceBtn" class="btn-square">打开工作区文件夹</button>
+                    <select id="workspaceFileSelect" class="file-select" disabled>
+                        <option value="">请先选择工作区</option>
+                    </select>
                 </div>
                 <textarea id="bfCode" class="code-area" rows="6" placeholder="在这里输入 BF 代码"></textarea>
                 <div class="resize-hint">可拖动调整高度</div>
@@ -623,7 +634,7 @@
         themeToggle.textContent = isDark ? '☀️' : '🌙';
     });
 
-    // 以下为原有 IDE 功能代码，保持不变
+    // 以下为原有 IDE 功能代码，并修改文件选择部分
     const MEM_SIZE = 30000;
     let memory = new Uint8Array(MEM_SIZE);
     let pointer = 0;
@@ -636,13 +647,13 @@
     const saveFileBtn = document.getElementById('saveFileBtn');
     const openFileBtn = document.getElementById('openFileBtn');
     const openWorkspaceBtn = document.getElementById('openWorkspaceBtn');
-    const selectFileBtn = document.getElementById('selectFileBtn');
+    const workspaceFileSelect = document.getElementById('workspaceFileSelect');
     const outputArea = document.getElementById('outputArea');
     const memoryGridDiv = document.getElementById('memoryGrid');
     const ptrIndicator = document.getElementById('ptrIndicator');
     const currentCellValSpan = document.getElementById('currentCellVal');
     
-    let currentWorkspaceFiles = [];
+    let currentWorkspaceFiles = []; // 存储 File 对象列表
     
     function setCookie(name, value, days) {
         let expires = "";
@@ -719,6 +730,7 @@
         input.click();
     }
     
+    // 选择工作区文件夹：扫描所有 .bf/.txt 文件并存储，同时填充下拉框
     function selectWorkspaceFolder() {
         const input = document.createElement('input');
         input.type = 'file';
@@ -731,9 +743,18 @@
             if (bfFiles.length === 0) {
                 alert("所选文件夹中没有 .bf 或 .txt 文件");
                 currentWorkspaceFiles = [];
+                workspaceFileSelect.disabled = true;
+                workspaceFileSelect.innerHTML = '<option value="">请先选择工作区</option>';
                 return;
             }
             currentWorkspaceFiles = bfFiles;
+            // 填充下拉框
+            workspaceFileSelect.disabled = false;
+            let options = '<option value="">选择工作区文件</option>';
+            bfFiles.forEach((file, idx) => {
+                options += `<option value="${idx}">${file.name}</option>`;
+            });
+            workspaceFileSelect.innerHTML = options;
             outputBuffer += `\n[系统] 工作区已设定，包含 ${bfFiles.length} 个文件\n`;
             outputArea.innerHTML = escapeHtml(outputBuffer);
             outputArea.scrollTop = outputArea.scrollHeight;
@@ -741,65 +762,24 @@
         input.click();
     }
     
-    function showFileSelectDropdown(btnElement) {
-        if (currentWorkspaceFiles.length === 0) {
-            alert("请先点击「打开工作区文件夹」选择一个包含 .bf 文件的文件夹");
-            return;
+    // 加载选中的工作区文件
+    function loadWorkspaceFile() {
+        const idx = workspaceFileSelect.value;
+        if (idx === "" || idx === null) return;
+        const file = currentWorkspaceFiles[parseInt(idx)];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                bfCodeTextarea.value = e.target.result;
+                saveEditorToCookie();
+                outputBuffer += `\n[系统] 从工作区加载: ${file.name}\n`;
+                outputArea.innerHTML = escapeHtml(outputBuffer);
+                outputArea.scrollTop = outputArea.scrollHeight;
+            };
+            reader.readAsText(file, "UTF-8");
         }
-        const existing = document.getElementById('dynamic-file-select');
-        if (existing) existing.remove();
-        
-        const wrapper = document.createElement('div');
-        wrapper.id = 'dynamic-file-select';
-        wrapper.className = 'file-select';
-        const rect = btnElement.getBoundingClientRect();
-        wrapper.style.top = (rect.bottom + window.scrollY + 5) + 'px';
-        wrapper.style.left = (rect.left + window.scrollX) + 'px';
-        
-        const select = document.createElement('select');
-        const defaultOption = document.createElement('option');
-        defaultOption.text = '选择文件...';
-        defaultOption.disabled = true;
-        defaultOption.selected = true;
-        select.appendChild(defaultOption);
-        currentWorkspaceFiles.forEach((file, idx) => {
-            const opt = document.createElement('option');
-            opt.value = idx;
-            opt.text = file.name;
-            select.appendChild(opt);
-        });
-        
-        const confirmBtn = document.createElement('button');
-        confirmBtn.textContent = '加载选中文件';
-        confirmBtn.onclick = () => {
-            const idx = select.value;
-            if (idx === '' || idx === null) return;
-            const file = currentWorkspaceFiles[parseInt(idx)];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    bfCodeTextarea.value = e.target.result;
-                    saveEditorToCookie();
-                    outputBuffer += `\n[系统] 从工作区加载: ${file.name}\n`;
-                    outputArea.innerHTML = escapeHtml(outputBuffer);
-                    outputArea.scrollTop = outputArea.scrollHeight;
-                };
-                reader.readAsText(file, "UTF-8");
-            }
-            wrapper.remove();
-        };
-        
-        wrapper.appendChild(select);
-        wrapper.appendChild(confirmBtn);
-        document.body.appendChild(wrapper);
-        
-        const closeHandler = (e) => {
-            if (!wrapper.contains(e.target) && e.target !== btnElement) {
-                wrapper.remove();
-                document.removeEventListener('click', closeHandler);
-            }
-        };
-        setTimeout(() => document.addEventListener('click', closeHandler), 0);
+        // 重置下拉框选择回默认提示
+        workspaceFileSelect.value = "";
     }
     
     function renderMemoryView() {
@@ -949,7 +929,7 @@
     saveFileBtn.addEventListener('click', saveCodeToFile);
     openFileBtn.addEventListener('click', openSingleFile);
     openWorkspaceBtn.addEventListener('click', selectWorkspaceFolder);
-    selectFileBtn.addEventListener('click', (e) => showFileSelectDropdown(e.currentTarget));
+    workspaceFileSelect.addEventListener('change', loadWorkspaceFile);
     
     function init() {
         loadEditorFromCookie();
