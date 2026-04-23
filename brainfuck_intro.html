@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>BF 语言介绍</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f5f5f7;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #1d1d1f;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        .hero {
+            text-align: center;
+            margin: 2rem 0 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: -0.005em;
+            background: linear-gradient(135deg, #1d1d1f, #6e6e73);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero .subhead {
+            font-size: 1.25rem;
+            color: #6e6e73;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin: 3rem 0;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: -0.002em;
+            margin-bottom: 1.25rem;
+            color: #1d1d1f;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin: 1.5rem 0 0.75rem;
+            color: #1d1d1f;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #3a3a3e;
+            margin-bottom: 1rem;
+        }
+
+        .ins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .ins-card {
+            background: #ffffff;
+            border-radius: 1.2rem;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.2s ease;
+            border: 1px solid #e8e8ed;
+        }
+
+        .ins-sym {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #0066cc;
+            margin-bottom: 0.25rem;
+        }
+
+        .ins-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+
+        .ins-desc {
+            font-size: 0.75rem;
+            color: #6e6e73;
+            margin-top: 0.25rem;
+        }
+
+        pre {
+            background: #1e1e2f;
+            padding: 1.25rem;
+            border-radius: 1.2rem;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            color: #eef2ff;
+            font-family: 'SF Mono', 'JetBrains Mono', monospace;
+            margin: 1rem 0;
+            border: 1px solid #2c2c3a;
+        }
+
+        code {
+            font-family: 'SF Mono', monospace;
+            background: #e8e8ed;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            color: #1d1d1f;
+        }
+
+        .example-output {
+            background: #f5f5f7;
+            border-radius: 1rem;
+            padding: 0.8rem;
+            margin: 0.5rem 0 1rem;
+            color: #1d1d1f;
+            font-family: monospace;
+            font-size: 0.85rem;
+            border: 1px solid #e8e8ed;
+        }
+
+        .handmade-note {
+            font-size: 0.7rem;
+            color: #8e8e93;
+            margin-top: 0.5rem;
+            text-align: left;
+            font-style: italic;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #0066cc;
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border-radius: 980px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: #0077ed;
+            transform: scale(1.02);
+        }
+
+        .bottom-wrapper {
+            width: 980px;
+            max-width: calc(100% - 2rem);
+            margin: 0 auto;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #d2d2d7;
+            margin: 2rem 0 1.5rem;
+        }
+
+        .simple-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: #6e6e73;
+            padding: 1rem 0 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .footer-link {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 700px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .hero .subhead {
+                font-size: 1rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+            .container {
+                padding: 1.5rem;
+            }
+            .ins-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .simple-footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="hero">
+        <h1>🧠 BF</h1>
+        <div class="subhead">极简主义 · 图灵完备 · 八条指令的深奥语言</div>
+    </div>
+
+    <section>
+        <p>BF 是 Urban Müller 于 1993 年创造的极小化编程语言。它仅由八个指令组成，却具备完整的图灵完备性——可以模拟任何计算机算法。其设计哲学是“极简”，每个指令只有一个字符，使得解释器可以非常短小，但也因此代码可读性极低，常被用作编程挑战或 esolang 研究的经典案例。</p>
+    </section>
+
+    <section>
+        <h2>历史与设计</h2>
+        <p>Müller 最初设计 BF 的目标是构建一个最小的图灵完备语言，编译器可以小到 200 字节以下。名字来源于其代码的晦涩程度。后来涌现出大量优化器、解释器、甚至硬件实现。它直接启发了无数“极简语言”的设计，是 esoteric programming 社区的基石之一。</p>
+    </section>
+
+    <section>
+        <h2>内存模型</h2>
+        <p>BF 程序拥有一段线性内存，通常 30,000 个字节，每个字节初始为 0，以及一个数据指针指向当前内存单元。另外有一个指令指针和输入输出流。所有操作均围绕指针和当前单元进行，数值溢出通常定义为模 256。</p>
+    </section>
+
+    <section>
+        <h2>八条指令速查</h2>
+        <div class="ins-grid">
+            <div class="ins-card"><div class="ins-sym">&gt;</div><div class="ins-name">指针右移</div><div class="ins-desc">将数据指针指向下一个单元格</div></div>
+            <div class="ins-card"><div class="ins-sym">&lt;</div><div class="ins-name">指针左移</div><div class="ins-desc">将数据指针指向上一个单元格</div></div>
+            <div class="ins-card"><div class="ins-sym">+</div><div class="ins-name">当前格加1</div><div class="ins-desc">当前单元格数值增加1</div></div>
+            <div class="ins-card"><div class="ins-sym">-</div><div class="ins-name">当前格减1</div><div class="ins-desc">当前单元格数值减少1</div></div>
+            <div class="ins-card"><div class="ins-sym">.</div><div class="ins-name">输出字符</div><div class="ins-desc">将当前单元格数值作为ASCII字符输出</div></div>
+            <div class="ins-card"><div class="ins-sym">,</div><div class="ins-name">读取输入</div><div class="ins-desc">从标准输入读取一个字节存入当前单元格</div></div>
+            <div class="ins-card"><div class="ins-sym">[</div><div class="ins-name">循环开始</div><div class="ins-desc">若当前格为0，则跳转到匹配的 ] 之后</div></div>
+            <div class="ins-card"><div class="ins-sym">]</div><div class="ins-name">循环结束</div><div class="ins-desc">若当前格非0，则跳转回匹配的 [ 之后</div></div>
+        </div>
+    </section>
+
+    <section>
+        <h2>示例代码</h2>
+        
+        <h3>复制单元格的值</h3>
+        <p>将当前单元格的值复制到右侧相邻的单元格，同时清空原单元格。这是最常用的数据移动技巧。</p>
+        <pre>[ -&gt; + &lt; ]</pre>
+        <div class="example-output">解释：当当前单元格（假设为 cell0）值不为 0 时，循环执行：将 cell0 减 1，cell1 加 1，然后移回 cell0。循环结束后，cell0 变为 0，cell1 增加了原 cell0 的值，实现了复制/移动。</div>
+
+        <h3>四则运算示例</h3>
+        <p>以下示例展示如何使用 BF 进行基本的算术运算。所有运算结果存储在指定内存单元中，并输出结果字符。</p>
+
+        <h3>加法</h3>
+        <p>将 cell0 的值加到 cell1，结果存入 cell1，同时清空 cell0。</p>
+        <pre>+++++          将 cell0 设置为 5
+&gt; +++          将 cell1 设置为 3
+&lt;              回到 cell0
+[ -&gt; + &lt; ]     将 cell0 的值转移到 cell1（cell1 增加 cell0 的值，cell0 清零）
+&gt;              移动到 cell1
+.              输出结果（ASCII 8，即退格符，此处仅作示例）</pre>
+        <div class="example-output">加法结果：8（非可打印字符，逻辑值为8）</div>
+
+        <h3>减法</h3>
+        <p>将 cell0 减去 cell1，结果存入 cell2。</p>
+        <pre>++++++++       将 cell0 设置为 8
+&gt; +++          将 cell1 设置为 3
+[ -&lt; -&gt; ]      将 cell0 减去 cell1，结果存到 cell2
+&lt;              移动到 cell2
+.              输出结果（ASCII 5）</pre>
+        <div class="example-output">减法结果：5</div>
+
+        <h3>乘法</h3>
+        <p>将 cell0 乘以 cell1，结果存入 cell2。使用嵌套循环。</p>
+        <pre>++++ &gt; +++ &lt;  将 cell0 设为 4，cell1 设为 3
+[              开始循环
+  -&gt;           cell0 减 1，指针移到 cell1
+  [ -&gt; + &gt; + &lt;&lt; ]   cell1 清空，值复制到 cell2 和 cell3
+  &gt; [ - &lt; + &gt; ]      从 cell2 还原 cell1
+  &lt;&lt;                指针回到 cell0
+]              结束循环
+&gt;&gt;&gt; .          输出结果（ASCII 12，即换页符）</pre>
+        <div class="example-output">乘法结果：12</div>
+
+        <h3>除法（懒得写带余除法，仅限整除）</h3>
+        <p>将 cell0 除以 cell1，结果存入 cell3。使用循环嵌套实现整除。</p>
+        <pre>++++++&gt;+++&lt;         将 cell0 设为 6，cell1 设为 3，cell2 作为除数（cell1）备用
+[&gt;                  判断被除数不为零，移动到除数 0
+  [[-&lt;-&gt;&gt;+&lt;]&gt;&gt;+&lt;&lt;]  cell0，cell1 减 1，cell2 加 1，商（cell3）加 1
+ &gt;                  移动到除数 1
+  [[-&lt;&lt;-&gt;+&gt;]&gt;+&lt;]    cell0，cell2 减 1，cell1 加 1，商加 1
+ &lt;&lt;                 回到 cell0
+]                   结果：cell3 为 2</pre>
+        <div class="example-output">除法结果：2</div>
+
+        <h3>输出 “HI!” 的示例</h3>
+        <pre>+++++ +++++    将 cell0 设为 10
+[              开始循环
+-              cell0 减 1
+&gt; +++++ ++     cell1 加 7
+&gt; +++ &lt;&lt;       cell2 加 3
+]              结束循环，此时 cell0 = 0，cell1 = 70，cell2 = 30
+&gt; ++ .         cell1 加 2，等于 72，输出 ASCII "H"
++ .            cell1 加 1，等于 73，输出 ASCII "I"
+&gt; +++ .        cell2 加 3，等于 33，输出 ASCII "！"</pre>
+        <div class="example-output">输出：HI!</div>
+
+        <h3>无限循环与输入复制</h3>
+        <pre>,[.,]</pre>
+        <p>读取一个字符并输出，重复直到输入结束。这是最简单的回显程序。</p>
+
+        <div class="handmade-note">（纯手搓，无AI，可放心食用）</div>
+    </section>
+
+    <section>
+        <h2>学习资源与技巧</h2>
+        <p>虽然指令很少，但编写复杂的 BF 程序需要巧妙利用循环和指针偏移。常用技巧包括：<br>
+        - <strong>清零当前格</strong>：<code>[-]</code><br>
+        - <strong>复制单元格值</strong>：需要借助临时单元，例如 <code>[->+&lt;]</code><br>
+        - <strong>条件判断</strong>：利用嵌套循环或指针偏移模拟 if 结构。<br>
+        网上有许多 BF 优化器和从高级语言编译到 BF 的编译器，适合进阶研究。</p>
+    </section>
+
+    <section>
+        <h2>为什么学习 BF？</h2>
+        <p>尽管 BF 不用于实际开发，但它对理解计算理论、有限状态机、指针操作和编译原理非常有帮助。在挑战中编写 BF 程序能极大锻炼逻辑思维与耐心，也是 esolang 社区的经典入门语言。</p>
+    </section>
+
+    <div class="button-group">
+        <a href="index.html" class="btn">IDE</a>
+    </div>
+</div>
+
+<div class="bottom-wrapper">
+    <hr>
+    <div class="simple-footer">
+        <div>Copyright © 2026 Jason Huo 保留所有权利。</div>
+        <div class="footer-links">
+            <a href="https://github.com/Jason-Huo-11" target="_blank" class="footer-link">GitHub</a>
+            <a href="https://esolangs.org/wiki/Brainfuck" target="_blank" class="footer-link">Esolang 维基</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
