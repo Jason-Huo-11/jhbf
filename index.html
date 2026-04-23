@@ -385,7 +385,7 @@
         .editor-extra-buttons {
             display: flex;
             gap: 12px;
-            margin: 12px 0 8px;
+            margin: 12px 0 7px;  /* 修改下边距为 7px */
         }
 
         .resize-hint {
@@ -609,7 +609,6 @@
 <script>
     // 主题切换逻辑
     const themeToggle = document.getElementById('themeToggle');
-    // 检查本地存储中的主题
     const currentTheme = localStorage.getItem('theme');
     if (currentTheme === 'dark') {
         document.body.classList.add('dark');
