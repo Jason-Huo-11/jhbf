@@ -64,7 +64,40 @@
             color: var(--text-primary);
             line-height: 1.4;
             padding: 2rem 1.5rem;
-            transition: background-color 0.2s, color 0.2s;
+            transition: background-color 0.2s, color 0.2s, background-image 0.2s;
+        }
+
+        /* 当有背景图片时，卡片背景变为半透明 */
+        body.has-bg-image .card,
+        body.has-bg-image .console,
+        body.has-bg-image .ascii-table-container,
+        body.has-bg-image .mem-cell,
+        body.has-bg-image .btn-square,
+        body.has-bg-image .btn,
+        body.has-bg-image .file-select,
+        body.has-bg-image .output-box {
+            background-color: rgba(255, 255, 255, 0.85);
+        }
+        body.dark.has-bg-image .card,
+        body.dark.has-bg-image .console,
+        body.dark.has-bg-image .ascii-table-container,
+        body.dark.has-bg-image .mem-cell,
+        body.dark.has-bg-image .btn-square,
+        body.dark.has-bg-image .btn,
+        body.dark.has-bg-image .file-select,
+        body.dark.has-bg-image .output-box {
+            background-color: rgba(0, 0, 0, 0.75);
+        }
+        /* 保持边框可见 */
+        body.has-bg-image .card,
+        body.has-bg-image .console,
+        body.has-bg-image .ascii-table-container,
+        body.has-bg-image .mem-cell,
+        body.has-bg-image .btn-square,
+        body.has-bg-image .btn,
+        body.has-bg-image .file-select,
+        body.has-bg-image .output-box {
+            border-color: var(--card-border);
         }
 
         .container {
@@ -73,12 +106,19 @@
             position: relative;
         }
 
-        /* 主题切换按钮 */
-        .theme-toggle {
+        /* 左侧按钮组（垂直排列） */
+        .left-buttons {
             position: fixed;
             left: 20px;
             top: 50%;
             transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .theme-toggle, .bg-toggle {
             width: 44px;
             height: 44px;
             border-radius: 50%;
@@ -91,10 +131,9 @@
             font-size: 1.4rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             transition: background 0.2s;
-            z-index: 1000;
             color: var(--text-primary);
         }
-        .theme-toggle:hover {
+        .theme-toggle:hover, .bg-toggle:hover {
             background: var(--btn-hover-bg);
         }
 
@@ -435,6 +474,61 @@
             pointer-events: none;
         }
 
+        /* 模态框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal {
+            background: var(--card-bg);
+            border-radius: 2rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.3);
+        }
+        .modal h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 1.5rem 0;
+        }
+        .modal-btn {
+            background: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            padding: 0.75rem;
+            border-radius: 980px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+            color: var(--text-primary);
+        }
+        .modal-btn:hover {
+            background: var(--btn-hover-bg);
+        }
+        .modal-close {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--link-color);
+            cursor: pointer;
+        }
+
         .bottom-wrapper {
             width: 980px;
             max-width: calc(100% - 2rem);
@@ -505,8 +599,11 @@
             .flex-placeholder {
                 display: none;
             }
-            .theme-toggle {
+            .left-buttons {
                 left: 10px;
+                gap: 8px;
+            }
+            .theme-toggle, .bg-toggle {
                 width: 36px;
                 height: 36px;
                 font-size: 1.2rem;
@@ -532,7 +629,10 @@
     </style>
 </head>
 <body>
-<button class="theme-toggle" id="themeToggle" aria-label="切换深浅色主题">🌙</button>
+<div class="left-buttons">
+    <button class="theme-toggle" id="themeToggle" aria-label="切换深浅色主题">🌙</button>
+    <button class="bg-toggle" id="bgToggle" aria-label="切换背景">🖼️</button>
+</div>
 
 <div class="container">
     <div class="hero">
@@ -545,47 +645,30 @@
     <div class="two-columns">
         <div class="left-ascii">
             <div class="card">
-                <div class="card-title">
-                    <span>ASCII 表</span>
-                </div>
+                <div class="card-title"><span>ASCII 表</span></div>
                 <div class="ascii-table-container">
                     <div class="ascii-grid" id="asciiGrid"></div>
                 </div>
-                <div style="font-size:0.7rem; margin-top: 12px; text-align:center; color: var(--text-secondary);">
-                    使用 . 输出字符，对照表辅助编程
-                </div>
+                <div style="font-size:0.7rem; margin-top: 12px; text-align:center; color: var(--text-secondary);">使用 . 输出字符，对照表辅助编程</div>
             </div>
         </div>
 
         <div class="right-stack">
             <div class="card">
-                <div class="card-title">
-                    <span>内存单元</span>
-                    <span id="ptrIndicator" class="ptr-badge">指针 → 单元 0</span>
-                </div>
-                <div class="memory-view">
-                    <div id="memoryGrid" class="memory-cells"></div>
-                </div>
-                <div style="font-size:0.7rem; margin-top: 12px; text-align:center; color: var(--text-secondary);">
-                    当前格值: <strong id="currentCellVal">0</strong> &nbsp;|&nbsp;
-                    <span>常用技巧: <code>[-]</code> 清零当前格</span>
-                </div>
+                <div class="card-title"><span>内存单元</span><span id="ptrIndicator" class="ptr-badge">指针 → 单元 0</span></div>
+                <div class="memory-view"><div id="memoryGrid" class="memory-cells"></div></div>
+                <div style="font-size:0.7rem; margin-top: 12px; text-align:center; color: var(--text-secondary);">当前格值: <strong id="currentCellVal">0</strong> &nbsp;|&nbsp;<span>常用技巧: <code>[-]</code> 清零当前格</span></div>
             </div>
 
             <div class="card">
-                <div class="card-title">
-                    <span>代码编辑器</span>
-                </div>
-                <div class="editor-hint">不支持注释，任何BF指令都将被识别！</div>
+                <div class="card-title"><span>代码编辑器</span></div>
+                <div class="editor-hint">⚠️ 不支持注释，任何BF指令都将被识别！</div>
                 <div class="editor-extra-buttons">
                     <button id="openWorkspaceBtn" class="btn-square">打开工作区文件夹</button>
-                    <select id="workspaceFileSelect" class="file-select" disabled>
-                        <option value="">请先选择工作区</option>
-                    </select>
+                    <select id="workspaceFileSelect" class="file-select" disabled><option value="">请先选择工作区</option></select>
                 </div>
                 <textarea id="bfCode" class="code-area" rows="6" placeholder="在这里输入 BF 代码"></textarea>
-                <div class="resize-hint">可拖动调整高度</div>
-                
+                <div class="resize-hint">↘️ 可拖动调整高度</div>
                 <div class="button-group">
                     <button id="runBtn" class="btn btn-primary">运行</button>
                     <button id="clearOutputBtn" class="btn">清空输出</button>
@@ -593,12 +676,8 @@
                     <button id="saveFileBtn" class="btn">保存/下载文件</button>
                     <button id="openFileBtn" class="btn">打开文件</button>
                 </div>
-
                 <div class="console">
-                    <div class="console-header">
-                        <span>程序输出 (ASCII)</span>
-                        <span>运行时实时刷新</span>
-                    </div>
+                    <div class="console-header"><span>程序输出 (ASCII)</span><span>运行时实时刷新</span></div>
                     <div id="outputArea" class="output-box">// 点击运行，输出将显示在这里</div>
                 </div>
             </div>
@@ -629,7 +708,6 @@
         }
         document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
     }
-    
     function getCookie(name) {
         const nameEQ = name + "=";
         const ca = document.cookie.split(';');
@@ -640,40 +718,124 @@
         }
         return null;
     }
-    
-    // ---------- 主题切换（使用 Cookie，有效期约100年） ----------
+
+    // ---------- 主题切换 ----------
     const themeToggle = document.getElementById('themeToggle');
     const savedTheme = getCookie('theme');
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark');
-        themeToggle.textContent = '☀️';
-    } else {
-        themeToggle.textContent = '🌙';
-    }
+    if (savedTheme === 'dark') { document.body.classList.add('dark'); themeToggle.textContent = '☀️'; }
+    else { themeToggle.textContent = '🌙'; }
     themeToggle.addEventListener('click', () => {
         document.body.classList.toggle('dark');
         const isDark = document.body.classList.contains('dark');
-        setCookie('theme', isDark ? 'dark' : 'light', 36500);  // 无限有效期 ≈ 100年
+        setCookie('theme', isDark ? 'dark' : 'light', 36500);
         themeToggle.textContent = isDark ? '☀️' : '🌙';
     });
-    
-    // ---------- 编辑器内容（使用 Cookie，无限有效期） ----------
+
+    // ---------- 背景切换功能 ----------
+    const bgToggle = document.getElementById('bgToggle');
+    // 显示模态框
+    function showBgModal() {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML = `
+            <div class="modal">
+                <h3>切换背景</h3>
+                <div class="modal-buttons">
+                    <button id="bgBingBtn" class="modal-btn">从必应每日图片获取</button>
+                    <button id="bgFileBtn" class="modal-btn">选取本地图片文件</button>
+                    <button id="bgResetBtn" class="modal-btn">重置默认背景</button>
+                </div>
+                <div class="modal-close">取消</div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        const closeModal = () => overlay.remove();
+        overlay.querySelector('.modal-close').addEventListener('click', closeModal);
+        overlay.querySelector('#bgBingBtn').addEventListener('click', () => {
+            fetchBingImage();
+            closeModal();
+        });
+        overlay.querySelector('#bgFileBtn').addEventListener('click', () => {
+            selectLocalImage();
+            closeModal();
+        });
+        overlay.querySelector('#bgResetBtn').addEventListener('click', () => {
+            resetBackground();
+            closeModal();
+        });
+    }
+    bgToggle.addEventListener('click', showBgModal);
+
+    // 从必应获取背景图片
+    function fetchBingImage() {
+        fetch('https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1')
+            .then(response => response.json())
+            .then(data => {
+                const url = 'https://cn.bing.com' + data.images[0].url;
+                setBackgroundImage(url);
+            })
+            .catch(err => {
+                console.error('获取必应图片失败:', err);
+                alert('获取必应背景失败，请稍后重试');
+            });
+    }
+
+    // 选择本地图片
+    function selectLocalImage() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                setBackgroundImage(ev.target.result);
+            };
+            reader.readAsDataURL(file);
+        };
+        input.click();
+    }
+
+    // 设置背景图片
+    function setBackgroundImage(imgUrl) {
+        document.body.style.backgroundImage = `url(${imgUrl})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundAttachment = 'fixed';
+        document.body.classList.add('has-bg-image');
+        // 保存到 localStorage
+        localStorage.setItem('bgImage', imgUrl);
+    }
+
+    // 重置背景
+    function resetBackground() {
+        document.body.style.backgroundImage = '';
+        document.body.style.backgroundSize = '';
+        document.body.style.backgroundPosition = '';
+        document.body.style.backgroundAttachment = '';
+        document.body.classList.remove('has-bg-image');
+        localStorage.removeItem('bgImage');
+    }
+
+    // 加载保存的背景图片
+    const savedBg = localStorage.getItem('bgImage');
+    if (savedBg) {
+        setBackgroundImage(savedBg);
+    }
+
+    // ---------- 编辑器内容 ----------
     const bfCodeTextarea = document.getElementById('bfCode');
-    function saveEditorToCookie() {
-        setCookie('bf_editor_content', bfCodeTextarea.value, 36500);
-    }
-    function loadEditorFromCookie() {
-        const saved = getCookie('bf_editor_content');
-        if (saved !== null) bfCodeTextarea.value = saved;
-    }
+    function saveEditorToCookie() { setCookie('bf_editor_content', bfCodeTextarea.value, 36500); }
+    function loadEditorFromCookie() { const saved = getCookie('bf_editor_content'); if (saved !== null) bfCodeTextarea.value = saved; }
     bfCodeTextarea.addEventListener('input', saveEditorToCookie);
-    
-    // ---------- 其他 IDE 功能 ----------
+    loadEditorFromCookie();
+
+    // ---------- 其余 IDE 功能 ----------
     const MEM_SIZE = 30000;
     let memory = new Uint8Array(MEM_SIZE);
     let pointer = 0;
     let outputBuffer = "";
-    
     const runBtn = document.getElementById('runBtn');
     const clearOutputBtn = document.getElementById('clearOutputBtn');
     const exampleBtn = document.getElementById('exampleBtn');
@@ -685,27 +847,17 @@
     const memoryGridDiv = document.getElementById('memoryGrid');
     const ptrIndicator = document.getElementById('ptrIndicator');
     const currentCellValSpan = document.getElementById('currentCellVal');
-    
-    let currentWorkspaceFiles = []; // 存储 File 对象列表
-    
-    // 保存/下载文件（使用 localStorage 保存计数器，不影响全局 Cookie 统一性）
+    let currentWorkspaceFiles = [];
+
     function getNextFileIndex() {
         let nextIndex = localStorage.getItem('bf_file_counter');
-        if (nextIndex === null) {
-            nextIndex = 0;
-        } else {
-            nextIndex = parseInt(nextIndex, 10);
-        }
+        if (nextIndex === null) nextIndex = 0; else nextIndex = parseInt(nextIndex, 10);
         localStorage.setItem('bf_file_counter', nextIndex + 1);
         return nextIndex;
     }
-    
     function saveCodeToFile() {
         const code = bfCodeTextarea.value;
-        if (code.trim() === "") {
-            alert("代码为空，无法保存空文件。");
-            return;
-        }
+        if (code.trim() === "") { alert("代码为空，无法保存空文件。"); return; }
         let filename = prompt("请输入文件名（不含扩展名）:", "my_program");
         if (filename === null || filename.trim() === "") return;
         filename = filename.trim() + ".bf";
@@ -722,7 +874,6 @@
         outputArea.innerHTML = escapeHtml(outputBuffer);
         outputArea.scrollTop = outputArea.scrollHeight;
     }
-    
     function openSingleFile() {
         const input = document.createElement('input');
         input.type = 'file';
@@ -742,7 +893,6 @@
         };
         input.click();
     }
-    
     function selectWorkspaceFolder() {
         const input = document.createElement('input');
         input.type = 'file';
@@ -762,9 +912,7 @@
             currentWorkspaceFiles = bfFiles;
             workspaceFileSelect.disabled = false;
             let options = '<option value="">选择工作区文件</option>';
-            bfFiles.forEach((file, idx) => {
-                options += `<option value="${idx}">${file.name}</option>`;
-            });
+            bfFiles.forEach((file, idx) => { options += `<option value="${idx}">${file.name}</option>`; });
             workspaceFileSelect.innerHTML = options;
             outputBuffer += `\n[系统] 工作区已设定，包含 ${bfFiles.length} 个文件\n`;
             outputArea.innerHTML = escapeHtml(outputBuffer);
@@ -772,7 +920,6 @@
         };
         input.click();
     }
-    
     function loadWorkspaceFile() {
         const idx = workspaceFileSelect.value;
         if (idx === "" || idx === null) return;
@@ -790,7 +937,6 @@
         }
         workspaceFileSelect.value = "";
     }
-    
     function renderMemoryView() {
         const displayCells = 30;
         let html = '';
@@ -805,47 +951,25 @@
         ptrIndicator.innerHTML = `指针 → 单元 ${pointer}`;
         currentCellValSpan.innerText = memory[pointer];
     }
-    
-    function resetMemory() {
-        memory = new Uint8Array(MEM_SIZE);
-        pointer = 0;
-        renderMemoryView();
-    }
-    
-    function clearOutput() {
-        outputBuffer = "";
-        outputArea.innerHTML = "// 输出已清空";
-    }
-    
-    function getCharInput() {
-        let inputChar = prompt("输入一个字符 (ASCII)", "");
-        if (inputChar === null || inputChar.length === 0) return 0;
-        return inputChar.charCodeAt(0) & 0xFF;
-    }
-    
+    function resetMemory() { memory = new Uint8Array(MEM_SIZE); pointer = 0; renderMemoryView(); }
+    function clearOutput() { outputBuffer = ""; outputArea.innerHTML = "// 输出已清空"; }
+    function getCharInput() { let inputChar = prompt("输入一个字符 (ASCII)", ""); if (inputChar === null || inputChar.length === 0) return 0; return inputChar.charCodeAt(0) & 0xFF; }
     function executeBrainfuck(code) {
         outputBuffer += "\n---[ 新运行 ]---\n";
         const instructions = code.split('');
         let pc = 0;
         const loopStack = [];
-        
         function findMatchingBracket(pos, direction) {
             let counter = 1;
             let i = pos + direction;
             while (i >= 0 && i < instructions.length) {
-                if (instructions[i] === '[') {
-                    if (direction === -1) counter--;
-                    else counter++;
-                } else if (instructions[i] === ']') {
-                    if (direction === 1) counter--;
-                    else counter++;
-                }
+                if (instructions[i] === '[') { if (direction === -1) counter--; else counter++; }
+                else if (instructions[i] === ']') { if (direction === 1) counter--; else counter++; }
                 if (counter === 0) return i;
                 i += direction;
             }
             return -1;
         }
-        
         let steps = 0;
         const MAX_STEPS = 200000;
         while (pc < instructions.length && steps < MAX_STEPS) {
@@ -861,25 +985,18 @@
                     outputArea.innerHTML = escapeHtml(outputBuffer);
                     outputArea.scrollTop = outputArea.scrollHeight;
                     break;
-                case ',':
-                    memory[pointer] = getCharInput();
-                    break;
+                case ',': memory[pointer] = getCharInput(); break;
                 case '[':
                     if (memory[pointer] === 0) {
                         const match = findMatchingBracket(pc, 1);
-                        if (match !== -1) pc = match;
-                        else return false;
-                    } else {
-                        loopStack.push(pc);
-                    }
+                        if (match !== -1) pc = match; else return false;
+                    } else { loopStack.push(pc); }
                     break;
                 case ']':
                     if (memory[pointer] !== 0) {
                         if (loopStack.length === 0) return false;
                         pc = loopStack[loopStack.length - 1];
-                    } else {
-                        loopStack.pop();
-                    }
+                    } else { loopStack.pop(); }
                     break;
                 default: break;
             }
@@ -890,19 +1007,8 @@
         outputArea.innerHTML = escapeHtml(outputBuffer);
         return true;
     }
-    
-    function escapeHtml(str) {
-        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
-    }
-    
-    function runCode() {
-        let code = bfCodeTextarea.value;
-        if (!code.trim()) return;
-        resetMemory();
-        executeBrainfuck(code);
-        renderMemoryView();
-    }
-    
+    function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+    function runCode() { let code = bfCodeTextarea.value; if (!code.trim()) return; resetMemory(); executeBrainfuck(code); renderMemoryView(); }
     function loadExample() {
         const example = `+++++ +++++    将cell0设为10
 [              开始循环
@@ -919,7 +1025,6 @@
         clearOutput();
         renderMemoryView();
     }
-    
     function buildAsciiTable() {
         const container = document.getElementById('asciiGrid');
         if (!container) return;
@@ -931,7 +1036,7 @@
         }
         container.innerHTML = html;
     }
-    
+
     runBtn.addEventListener('click', runCode);
     clearOutputBtn.addEventListener('click', clearOutput);
     exampleBtn.addEventListener('click', loadExample);
@@ -939,7 +1044,7 @@
     openFileBtn.addEventListener('click', openSingleFile);
     openWorkspaceBtn.addEventListener('click', selectWorkspaceFolder);
     workspaceFileSelect.addEventListener('change', loadWorkspaceFile);
-    
+
     function init() {
         loadEditorFromCookie();
         resetMemory();
